@@ -1,0 +1,12 @@
+D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\DuckDB.Cloud.csproj.AssemblyReference.cache
+D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\DuckDB.Cloud.GeneratedMSBuildEditorConfig.editorconfig
+D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\DuckDB.Cloud.AssemblyInfoInputs.cache
+D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\DuckDB.Cloud.AssemblyInfo.cs
+D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\DuckDB.Cloud.csproj.CoreCompileInputs.cache
+D:\Trader\CSon\DuckDB.Cloud\bin\Debug\net8.0\DuckDB.Cloud.deps.json
+D:\Trader\CSon\DuckDB.Cloud\bin\Debug\net8.0\DuckDB.Cloud.dll
+D:\Trader\CSon\DuckDB.Cloud\bin\Debug\net8.0\DuckDB.Cloud.pdb
+D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\DuckDB.Cloud.dll
+D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\refint\DuckDB.Cloud.dll
+D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\DuckDB.Cloud.pdb
+D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\ref\DuckDB.Cloud.dll
