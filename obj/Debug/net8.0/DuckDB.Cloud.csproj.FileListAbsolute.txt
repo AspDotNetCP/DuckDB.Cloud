@@ -10,3 +10,4 @@ D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\DuckDB.Cloud.dll
 D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\refint\DuckDB.Cloud.dll
 D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\DuckDB.Cloud.pdb
 D:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\ref\DuckDB.Cloud.dll
+d:\Trader\CSon\DuckDB.Cloud\obj\Debug\net8.0\DuckDB.Cloud.sourcelink.json
