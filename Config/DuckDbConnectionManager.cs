@@ -69,7 +69,8 @@ public class DuckDbConnectionManager : IDuckDbConnectionManager
     {
         var builder = new NpgsqlConnectionStringBuilder
         {
-            Host = "api.motherduck.com",  // MotherDuck API endpoint
+            
+            Host = "pg.us-east-1-aws.motherduck.com",  // MotherDuck API endpoint
             Port = 5432,
             Database = config.Database,
             Username = config.MotherDuckToken ?? "service_user",

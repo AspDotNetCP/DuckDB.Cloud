@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DuckDB.Cloud")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f3cf3585c494a01c1e43c93ec8913e12d6d0ac44")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4a2c4d653581a5a0c69f36783eb4f73cad78c038")]
 [assembly: System.Reflection.AssemblyProductAttribute("DuckDB.Cloud")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DuckDB.Cloud")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
