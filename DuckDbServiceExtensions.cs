@@ -33,9 +33,11 @@ public static class DuckDbServiceExtensions
         // Register configuration
         services.AddSingleton(settings);
 
-        // Register context and manager
-        services.AddSingleton<DuckDbContext>();
+        // Register manager first (needed by context)
         services.AddSingleton<IDuckDbConnectionManager, DuckDbConnectionManager>();
+
+        // Register context (depends on manager)
+        services.AddSingleton<DuckDbContext>();
 
         return services;
     }
