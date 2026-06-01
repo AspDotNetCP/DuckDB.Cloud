@@ -41,10 +41,10 @@ public class DuckDbConnectionManager : IDuckDbConnectionManager, IDisposable
             throw new InvalidOperationException(
                 $"Connection '{connectionName}' not found.");
 
+        var connectionString = BuildConnectionString(config);
+
         try
         {
-            var connectionString = BuildConnectionString(config);
-
             var connection = new DuckDBConnection(connectionString);
 
             await connection.OpenAsync();
@@ -59,20 +59,57 @@ public class DuckDbConnectionManager : IDuckDbConnectionManager, IDisposable
         }
         catch (Exception ex)
         {
+            var dbHint = string.IsNullOrWhiteSpace(config.Database)
+                ? "<missing>"
+                : config.Database;
+
+            var connectionHint = connectionString;
             _logger.LogError(ex,
-                "Failed connecting to {Connection}",
-                connectionName);
+                "Failed connecting to {ConnectionName} using database '{Database}' and connection string '{ConnectionString}'. " +
+                "If this is development, verify MOTHERDUCK_DATABASE and MOTHERDUCK_REGION in your .env. " +
+                "If the database should exist in MotherDuck, confirm that the token has access.",
+                connectionName,
+                dbHint,
+                connectionHint);
+
+            Console.WriteLine($"MotherDuck connection failed for '{connectionName}'.");
+            Console.WriteLine($"  Database: {dbHint}");
+            Console.WriteLine($"  ConnectionString: {connectionHint}");
+            Console.WriteLine("  Check MOTHERDUCK_DATABASE, MOTHERDUCK_REGION, and the token scope.");
 
             throw;
         }
     }
 
-    private string BuildConnectionString(
-        DuckDbConnectionConfig config)
+    private static string BuildConnectionString(DuckDbConnectionConfig config)
     {
-        return
-            $"DataSource=md:{config.Database}" +
-            $"?motherduck_token={config.MotherDuckToken}";
+        var connectionString = string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(config.ConnectionString))
+        {
+            connectionString = config.ConnectionString.Trim();
+        }
+        else if (!string.IsNullOrWhiteSpace(config.Database))
+        {
+            connectionString = $"md:{config.Database.Trim()}";
+        }
+        else
+        {
+            throw new InvalidOperationException("DuckDB connection configuration must specify either ConnectionString or Database.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(config.MotherDuckToken) &&
+            !connectionString.Contains("motherduck_token=", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!connectionString.EndsWith(";"))
+                connectionString += ";";
+
+            connectionString += $"motherduck_token={config.MotherDuckToken.Trim()}";
+        }
+
+        // DuckDB.NET expects standard connection-string key/value pairs.
+        // Prefix with DataSource= so the parser recognizes the md:... value.
+        return $"DataSource={connectionString}";
     }
 
     public IEnumerable<string> GetAvailableConnections()
