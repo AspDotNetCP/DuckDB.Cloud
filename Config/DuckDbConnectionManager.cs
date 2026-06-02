@@ -66,17 +66,15 @@ public class DuckDbConnectionManager : IDuckDbConnectionManager, IDisposable
             var connectionHint = connectionString;
             _logger.LogError(ex,
                 "Failed connecting to {ConnectionName} using database '{Database}' and connection string '{ConnectionString}'. " +
-                "If this is development, verify MOTHERDUCK_DATABASE and MOTHERDUCK_REGION in your .env. " +
-                "If the database should exist in MotherDuck, confirm that the token has access.",
-                connectionName,
-                dbHint,
-                connectionHint);
+                    "Verify MOTHERDUCK_DATABASE in your .env and confirm that the token has access.",
+                    connectionName,
+                    dbHint,
+                    connectionHint);
 
             Console.WriteLine($"MotherDuck connection failed for '{connectionName}'.");
             Console.WriteLine($"  Database: {dbHint}");
             Console.WriteLine($"  ConnectionString: {connectionHint}");
-            Console.WriteLine("  Check MOTHERDUCK_DATABASE, MOTHERDUCK_REGION, and the token scope.");
-
+            Console.WriteLine("  Check MOTHERDUCK_DATABASE and the token scope.");
             throw;
         }
     }
@@ -101,14 +99,17 @@ public class DuckDbConnectionManager : IDuckDbConnectionManager, IDisposable
         if (!string.IsNullOrWhiteSpace(config.MotherDuckToken) &&
             !connectionString.Contains("motherduck_token=", StringComparison.OrdinalIgnoreCase))
         {
-            if (!connectionString.EndsWith(";"))
-                connectionString += ";";
-
-            connectionString += $"motherduck_token={config.MotherDuckToken.Trim()}";
+            // Embed the token inside the DataSource value instead of adding a separate
+            // connection-string key. DuckDB.NET's parser rejects unknown top-level
+            // properties like 'motherduck_token'. Use ? or & to append query params.
+            if (connectionString.Contains("?"))
+                connectionString += $"&motherduck_token={config.MotherDuckToken.Trim()}";
+            else
+                connectionString += $"?motherduck_token={config.MotherDuckToken.Trim()}";
         }
 
-        // DuckDB.NET expects standard connection-string key/value pairs.
-        // Prefix with DataSource= so the parser recognizes the md:... value.
+        // DuckDB.NET expects the md:... value to be the DataSource. Do not add unknown
+        // top-level keys (like motherduck_token=) as they will be rejected by the parser.
         return $"DataSource={connectionString}";
     }
 
