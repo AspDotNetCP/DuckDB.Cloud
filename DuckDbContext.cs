@@ -52,18 +52,20 @@ public class DuckDbContext
             var connectionName = _settings.DefaultConnection ?? "Production";
             _logger.LogInformation("Running DuckDB migrations on connection: {Connection}", connectionName);
 
-            // Migration 003: Create AiVisionIconDetails table
-            var migrationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "DuckDB.Cloud", "SqlMigrations", "003_ai_vision_icon_details.sql");
-            
-            if (File.Exists(migrationPath))
+            var migrationsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "DuckDB.Cloud", "SqlMigrations");
+            foreach (var migrationFile in new[] { "003_ai_vision_icon_details.sql", "004_ai_chat_details.sql" })
             {
-                var sql = await File.ReadAllTextAsync(migrationPath);
-                await _connectionManager.ExecuteCommandAsync(connectionName, sql);
-                _logger.LogInformation("Migration 003_ai_vision_icon_details.sql executed successfully");
-            }
-            else
-            {
-                _logger.LogWarning("Migration file not found: {Path}", migrationPath);
+                var migrationPath = Path.Combine(migrationsDir, migrationFile);
+                if (File.Exists(migrationPath))
+                {
+                    var sql = await File.ReadAllTextAsync(migrationPath);
+                    await _connectionManager.ExecuteCommandAsync(connectionName, sql);
+                    _logger.LogInformation("Migration {MigrationFile} executed successfully", migrationFile);
+                }
+                else
+                {
+                    _logger.LogWarning("Migration file not found: {Path}", migrationPath);
+                }
             }
         }
         catch (Exception ex)

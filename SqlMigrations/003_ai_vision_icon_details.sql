@@ -1,8 +1,10 @@
 -- Migration: 003_ai_vision_icon_details.sql
 -- Stores AI Vision icon analysis results for the My Icon workflow
 
+CREATE SEQUENCE IF NOT EXISTS seq_ai_vision_icon_details_id START 1;
+
 CREATE TABLE IF NOT EXISTS AiVisionIconDetails (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id INTEGER PRIMARY KEY DEFAULT nextval('seq_ai_vision_icon_details_id'),
     provider VARCHAR NOT NULL,
     original_prompt TEXT,
     raw_response TEXT,
