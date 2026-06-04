@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using DuckDB.Cloud.Models;
 using DuckDB.Cloud.Interfaces;
+using DuckDB.Cloud.Schema;
 
 namespace DuckDB.Cloud;
 
@@ -38,59 +39,32 @@ public class DuckDbContext
             _logger.LogWarning($"No default connection specified. Using: {_settings.DefaultConnection}");
         }
 
-        // Run migrations
         await RunMigrationsAsync();
     }
 
-    /// <summary>
-    /// Run SQL migrations to create/update database schema
-    /// </summary>
     private async Task RunMigrationsAsync()
     {
         try
         {
             var connectionName = _settings.DefaultConnection ?? "Production";
-            _logger.LogInformation("Running DuckDB migrations on connection: {Connection}", connectionName);
-
-            var migrationsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "DuckDB.Cloud", "SqlMigrations");
-            foreach (var migrationFile in new[] { "003_ai_vision_icon_details.sql", "004_ai_chat_details.sql" })
-            {
-                var migrationPath = Path.Combine(migrationsDir, migrationFile);
-                if (File.Exists(migrationPath))
-                {
-                    var sql = await File.ReadAllTextAsync(migrationPath);
-                    await _connectionManager.ExecuteCommandAsync(connectionName, sql);
-                    _logger.LogInformation("Migration {MigrationFile} executed successfully", migrationFile);
-                }
-                else
-                {
-                    _logger.LogWarning("Migration file not found: {Path}", migrationPath);
-                }
-            }
+            var schemaManager = new DuckDbSchemaManager(
+                _connectionManager,
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<DuckDbSchemaManager>.Instance);
+            await schemaManager.EnsureSchemaAsync(connectionName);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to run DuckDB migrations");
-            // Don't throw - allow app to start even if migrations fail
         }
     }
 
-    /// <summary>
-    /// Get connection settings
-    /// </summary>
     public DuckDbConnectionSettings GetSettings() => _settings;
 
-    /// <summary>
-    /// Get configuration for a specific connection
-    /// </summary>
     public DuckDbConnectionConfig? GetConnectionConfig(string connectionName)
     {
-        return _settings.Connections.FirstOrDefault(c => 
+        return _settings.Connections.FirstOrDefault(c =>
             c.Name.Equals(connectionName, StringComparison.OrdinalIgnoreCase));
     }
 
-    /// <summary>
-    /// List all available connections
-    /// </summary>
     public IEnumerable<string> GetConnectionNames() => _settings.Connections.Select(c => c.Name);
 }

@@ -6,6 +6,10 @@ namespace DuckDB.Cloud.Models;
 public class AiVisionIconDetail
 {
     public int Id { get; set; }
+
+    /// <summary>User who performed the icon scan (<see cref="User.Id"/>).</summary>
+    public int? UserId { get; set; }
+
     public string Provider { get; set; } = string.Empty;
     public string? OriginalPrompt { get; set; }
     public string? RawResponse { get; set; }

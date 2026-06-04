@@ -1,8 +1,10 @@
 -- Migration: 004_ai_chat_details.sql
 -- Stores AI chat response results
 
+CREATE SEQUENCE IF NOT EXISTS seq_ai_chat_details_id START 1;
+
 CREATE TABLE IF NOT EXISTS AiChatDetails (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id INTEGER PRIMARY KEY DEFAULT nextval('seq_ai_chat_details_id'),
     provider VARCHAR NOT NULL,
     original_prompt TEXT,
     raw_response TEXT,

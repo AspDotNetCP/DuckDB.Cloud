@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using DuckDB.Cloud.Config;
 using DuckDB.Cloud.Interfaces;
 using DuckDB.Cloud.Models;
+using DuckDB.Cloud.Schema;
 
 namespace DuckDB.Cloud;
 
@@ -35,6 +36,7 @@ public static class DuckDbServiceExtensions
 
         // Register manager first (needed by context)
         services.AddSingleton<IDuckDbConnectionManager, DuckDbConnectionManager>();
+        services.AddSingleton<IDuckDbSchemaManager, DuckDbSchemaManager>();
 
         // Register context (depends on manager)
         services.AddSingleton<DuckDbContext>();
