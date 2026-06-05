@@ -1,5 +1,7 @@
+using System.Data.Common;
 using System.Reflection;
 using DuckDB.Cloud.Interfaces;
+using DuckDB.NET.Data;
 using Microsoft.Extensions.Logging;
 
 namespace DuckDB.Cloud.Schema;
@@ -33,6 +35,7 @@ public sealed class DuckDbSchemaManager : IDuckDbSchemaManager
             if (_schemaEnsured)
                 return;
 
+            await EnsureMigrationHistoryTableAsync(connectionName, cancellationToken);
             await EnsureCreateTablesAsync(connectionName, cancellationToken);
             await EnsureTableUpdatesAsync(connectionName, cancellationToken);
             _schemaEnsured = true;
@@ -55,12 +58,17 @@ public sealed class DuckDbSchemaManager : IDuckDbSchemaManager
             return;
         }
 
+        var appliedScripts = await GetAppliedScriptsAsync(connectionName, cancellationToken);
+
         foreach (var file in Directory.GetFiles(migrationsDir, "*.sql")
                      .Select(Path.GetFileName)
                      .Where(f => f != null && IsCreateMigration(f!))
                      .OrderBy(f => f, StringComparer.Ordinal))
         {
             cancellationToken.ThrowIfCancellationRequested();
+            if (appliedScripts.Contains(file!))
+                continue;
+
             var path = Path.Combine(migrationsDir, file!);
             await ExecuteSqlFileAsync(connectionName, path, file!, cancellationToken);
         }
@@ -77,10 +85,16 @@ public sealed class DuckDbSchemaManager : IDuckDbSchemaManager
             return;
         }
 
+        var appliedScripts = await GetAppliedScriptsAsync(connectionName, cancellationToken);
+
         foreach (var path in Directory.GetFiles(updatesDir, "*.sql").OrderBy(p => p, StringComparer.Ordinal))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            await ExecuteSqlFileAsync(connectionName, path, Path.GetFileName(path), cancellationToken);
+            var label = Path.GetFileName(path);
+            if (label != null && appliedScripts.Contains(label))
+                continue;
+
+            await ExecuteSqlFileAsync(connectionName, path, label!, cancellationToken);
         }
     }
 
@@ -98,6 +112,7 @@ public sealed class DuckDbSchemaManager : IDuckDbSchemaManager
         {
             _logger.LogInformation("Applying schema script {Script}", label);
             await _connectionManager.ExecuteCommandAsync(connectionName, sql);
+            await MarkMigrationAppliedAsync(connectionName, label, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -131,6 +146,49 @@ public sealed class DuckDbSchemaManager : IDuckDbSchemaManager
         }
 
         return null;
+    }
+
+    private async Task EnsureMigrationHistoryTableAsync(
+        string connectionName,
+        CancellationToken cancellationToken)
+    {
+        const string sql = @"
+            CREATE TABLE IF NOT EXISTS schema_migrations (
+                script_name VARCHAR PRIMARY KEY,
+                applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );";
+
+        await _connectionManager.ExecuteCommandAsync(connectionName, sql);
+    }
+
+    private async Task<HashSet<string>> GetAppliedScriptsAsync(
+        string connectionName,
+        CancellationToken cancellationToken)
+    {
+        var appliedScripts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var connection = (DuckDBConnection)await _connectionManager.GetConnectionAsync(connectionName);
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT script_name FROM schema_migrations;";
+
+        using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            if (!reader.IsDBNull(0))
+                appliedScripts.Add(reader.GetString(0));
+        }
+
+        return appliedScripts;
+    }
+
+    private async Task MarkMigrationAppliedAsync(
+        string connectionName,
+        string scriptName,
+        CancellationToken cancellationToken)
+    {
+        var escaped = scriptName.Replace("'", "''", StringComparison.Ordinal);
+        var sql = $"INSERT INTO schema_migrations (script_name) VALUES ('{escaped}');";
+        await _connectionManager.ExecuteCommandAsync(connectionName, sql);
     }
 
     internal static string? ResolveUpdatesDirectory()
