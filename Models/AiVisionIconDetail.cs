@@ -10,6 +10,9 @@ public class AiVisionIconDetail
     /// <summary>User who performed the icon scan (<see cref="User.Id"/>).</summary>
     public int? UserId { get; set; }
 
+    /// <summary>Repeat scans for the same user + app_name (1–3, see upsert_ai_vision_scan.sql).</summary>
+    public int ScanCount { get; set; } = 1;
+
     public string Provider { get; set; } = string.Empty;
     public string? OriginalPrompt { get; set; }
     public string? RawResponse { get; set; }
