@@ -20,8 +20,7 @@ CREATE TABLE IF NOT EXISTS trading_data (
     symbol VARCHAR NOT NULL,
     price DECIMAL(10, 2),
     quantity INTEGER,
-    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);

@@ -5,7 +5,7 @@ CREATE SEQUENCE IF NOT EXISTS seq_ai_vision_icon_details_id START 1;
 
 CREATE TABLE IF NOT EXISTS AiVisionIconDetails (
     id INTEGER PRIMARY KEY DEFAULT nextval('seq_ai_vision_icon_details_id'),
-    user_id INTEGER,
+    user_id INTEGER NOT NULL DEFAULT 1,
     scan_count INTEGER NOT NULL DEFAULT 1,
     provider VARCHAR NOT NULL,
     original_prompt TEXT,
@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS AiVisionIconDetails (
     source_image_hash VARCHAR,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
     CHECK (scan_count >= 1 AND scan_count <= 3)
 );
 
