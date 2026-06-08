@@ -24,8 +24,8 @@ public class StockData
     public decimal? YearHigh { get; set; }
     public decimal? OpenPrice { get; set; }
     public decimal? PreviousClose { get; set; }
-    public decimal? PriceAvg50 { get; set; }
-    public decimal? PriceAvg200 { get; set; }
+    public decimal? PriceAvg_50 { get; set; }
+    public decimal? PriceAvg_200 { get; set; }
     public string? QuoteTimestamp { get; set; }
     public string? RawResponse { get; set; }
     public DateTime? FetchedAt { get; set; }
