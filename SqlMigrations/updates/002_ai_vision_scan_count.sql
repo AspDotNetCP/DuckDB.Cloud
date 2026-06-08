@@ -1,5 +1,5 @@
 -- Update: track repeat scans of the same app per user (max 3)
-ALTER TABLE AiVisionIconDetails ADD COLUMN IF NOT EXISTS scan_count INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE AiVisionIconDetails ADD COLUMN IF NOT EXISTS scan_count INTEGER;
 
 UPDATE AiVisionIconDetails
 SET scan_count = 1
