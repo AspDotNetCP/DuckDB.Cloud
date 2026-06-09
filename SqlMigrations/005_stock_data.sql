@@ -28,7 +28,9 @@ CREATE TABLE IF NOT EXISTS stock_data (
     raw_response TEXT,
     fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (ai_vision_icon_detail_id) REFERENCES AiVisionIconDetails(id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_stock_data_user_id ON stock_data(user_id);
