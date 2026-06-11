@@ -22,8 +22,7 @@ CREATE TABLE IF NOT EXISTS AiVisionIconDetails (
     source_image_hash VARCHAR,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CHECK (scan_count >= 1 AND scan_count <= 3),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    CHECK (scan_count >= 1 AND scan_count <= 3)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uq_ai_vision_icon_details_user_app
