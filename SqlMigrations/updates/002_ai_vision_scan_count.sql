@@ -21,6 +21,22 @@ FROM (
 ) AS grouped
 WHERE AiVisionIconDetails.id = grouped.keep_id;
 
+-- Preserve any stock_data references to duplicate AiVisionIconDetails rows.
+UPDATE stock_data
+SET ai_vision_icon_detail_id = grouped.keep_id
+FROM AiVisionIconDetails v
+INNER JOIN (
+    SELECT user_id, app_name, MAX(id) AS keep_id
+    FROM AiVisionIconDetails
+    WHERE user_id IS NOT NULL AND app_name IS NOT NULL
+    GROUP BY user_id, app_name
+    HAVING COUNT(*) > 1
+) AS grouped
+    ON v.user_id = grouped.user_id
+   AND v.app_name = grouped.app_name
+WHERE stock_data.ai_vision_icon_detail_id = v.id
+  AND v.id <> grouped.keep_id;
+
 DELETE FROM AiVisionIconDetails
 WHERE id IN (
     SELECT v.id
