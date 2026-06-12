@@ -47,7 +47,7 @@ public class DuckDbConnectionManager : IDuckDbConnectionManager, IDisposable
         {
             var connection = new DuckDBConnection(connectionString);
 
-            await connection.OpenAsync();
+            await Task.Run(async () => await connection.OpenAsync());
 
             _connections[connectionName] = connection;
 
@@ -125,11 +125,12 @@ public class DuckDbConnectionManager : IDuckDbConnectionManager, IDisposable
         var connection =
             (DuckDBConnection)await GetConnectionAsync(connectionName);
 
-        using var command = connection.CreateCommand();
-
-        command.CommandText = sql;
-
-        return await command.ExecuteScalarAsync();
+        return await Task.Run(async () =>
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+            return await command.ExecuteScalarAsync();
+        });
     }
 
     public async Task ExecuteCommandAsync(
@@ -139,11 +140,12 @@ public class DuckDbConnectionManager : IDuckDbConnectionManager, IDisposable
         var connection =
             (DuckDBConnection)await GetConnectionAsync(connectionName);
 
-        using var command = connection.CreateCommand();
-
-        command.CommandText = sql;
-
-        await command.ExecuteNonQueryAsync();
+        await Task.Run(async () =>
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+            await command.ExecuteNonQueryAsync();
+        });
     }
 
     public async Task<bool> TestConnectionAsync(
