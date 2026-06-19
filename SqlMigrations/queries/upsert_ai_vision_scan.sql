@@ -5,7 +5,7 @@
 -- Parameters (Dapper / DuckDB $name):
 --   $UserId, $AppName, $Provider, $OriginalPrompt, $RawResponse, $Success,
 --   $ElapsedMs, $ErrorMessage, $Publisher, $Category, $Confidence,
---   $Url, $DownloadUrl, $SourceImageHash
+--   $Url, $DownloadUrl, $Base64Image
 
 INSERT INTO AiVisionIconDetails (
     user_id,
@@ -22,7 +22,7 @@ INSERT INTO AiVisionIconDetails (
     confidence,
     url,
     download_url,
-    source_image_hash,
+    base64image,
     created_at,
     updated_at
 ) VALUES (
@@ -40,7 +40,7 @@ INSERT INTO AiVisionIconDetails (
     $Confidence,
     $Url,
     $DownloadUrl,
-    $SourceImageHash,
+    $Base64Image,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 )
@@ -57,6 +57,6 @@ ON CONFLICT (user_id, app_name) DO UPDATE SET
     confidence = EXCLUDED.confidence,
     url = EXCLUDED.url,
     download_url = EXCLUDED.download_url,
-    source_image_hash = EXCLUDED.source_image_hash,
+    base64image = EXCLUDED.base64image,
     updated_at = CURRENT_TIMESTAMP
 WHERE AiVisionIconDetails.scan_count < 3;

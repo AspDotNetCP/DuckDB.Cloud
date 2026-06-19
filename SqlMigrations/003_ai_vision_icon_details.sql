@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS AiVisionIconDetails (
     confidence INTEGER,
     url VARCHAR,
     download_url VARCHAR,
-    source_image_hash VARCHAR,
+    base64image TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CHECK (scan_count >= 1 AND scan_count <= 3)

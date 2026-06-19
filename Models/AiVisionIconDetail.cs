@@ -25,7 +25,7 @@ public class AiVisionIconDetail
     public int? Confidence { get; set; }
     public string? Url { get; set; }
     public string? DownloadUrl { get; set; }
-    public string? SourceImageHash { get; set; }
+    public string? Base64Image { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
