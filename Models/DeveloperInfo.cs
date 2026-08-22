@@ -20,6 +20,7 @@ public class DeveloperInfo
     public string? Email { get; set; }
     public string? Description { get; set; }
     public string? RawInfoText { get; set; }
+    public bool IsVerified { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
