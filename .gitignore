@@ -20,3 +20,7 @@ obj/Debug/net8.0/
 obj/DuckDB.Cloud.csproj.nuget.dgspec.json
 
 obj/
+
+bin/Release/net8.0/DuckDB.Cloud.dll
+
+bin/Release/net8.0/DuckDB.Cloud.pdb
