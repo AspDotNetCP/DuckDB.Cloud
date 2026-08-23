@@ -66,12 +66,67 @@ public sealed class DuckDbSchemaManager : IDuckDbSchemaManager
                      .OrderBy(f => f, StringComparer.Ordinal))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (appliedScripts.Contains(file!))
-                continue;
-
+            
             var path = Path.Combine(migrationsDir, file!);
+            var tableName = ExtractTableNameFromMigration(file!);
+            
+            // Check if migration was already applied
+            if (appliedScripts.Contains(file!))
+            {
+                // Migration was applied, but check if table still exists
+                // If table was deleted manually, re-run the migration
+                if (!string.IsNullOrEmpty(tableName) && await TableExistsAsync(connectionName, tableName, cancellationToken))
+                {
+                    _logger.LogDebug("Migration {Script} already applied and table {Table} exists, skipping", file, tableName);
+                    continue;
+                }
+                
+                // Table was deleted, need to re-run migration
+                _logger.LogInformation("Migration {Script} was applied but table {Table} was deleted, re-running", file, tableName);
+                await RemoveMigrationRecordAsync(connectionName, file!, cancellationToken);
+            }
+
             await ExecuteSqlFileAsync(connectionName, path, file!, cancellationToken);
         }
+    }
+
+    private static string? ExtractTableNameFromMigration(string fileName)
+    {
+        // Extract table name from migration file (e.g., "006_developer_info.sql" -> "DeveloperInfo")
+        var migrationName = Path.GetFileNameWithoutExtension(fileName);
+        // Skip the numeric prefix (e.g., "006_")
+        var underscoreIndex = migrationName.IndexOf('_');
+        if (underscoreIndex >= 0 && underscoreIndex + 1 < migrationName.Length)
+        {
+            var name = migrationName.Substring(underscoreIndex + 1);
+            // Convert snake_case to PascalCase
+            return string.Join("", name.Split('_').Select(s => 
+                string.IsNullOrEmpty(s) ? "" : char.ToUpper(s[0]) + s.Substring(1)));
+        }
+        return null;
+    }
+
+    private async Task<bool> TableExistsAsync(string connectionName, string tableName, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var connection = (DuckDBConnection)await _connectionManager.GetConnectionAsync(connectionName);
+            using var command = connection.CreateCommand();
+            command.CommandText = $"SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '{tableName}';";
+            var result = await command.ExecuteScalarAsync(cancellationToken);
+            return result != null && Convert.ToInt32(result) > 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task RemoveMigrationRecordAsync(string connectionName, string scriptName, CancellationToken cancellationToken)
+    {
+        var escaped = scriptName.Replace("'", "''", StringComparison.Ordinal);
+        var sql = $"DELETE FROM schema_migrations WHERE script_name = '{escaped}';";
+        await _connectionManager.ExecuteCommandAsync(connectionName, sql);
     }
 
     public async Task EnsureTableUpdatesAsync(
