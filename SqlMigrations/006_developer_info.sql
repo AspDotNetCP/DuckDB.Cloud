@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS DeveloperInfo (
     email VARCHAR,
     description TEXT,
     raw_info_text TEXT,
+    is_verified BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
