@@ -14,8 +14,10 @@ public class DeveloperInfo
     public string? Company { get; set; }
     public string? Website { get; set; }
     public string? DownloadUrl { get; set; }
-    public string? GitHub { get; set; }
-    public string? LinkedIn { get; set; }
+    // NOTE: named without interior capitals so GenericRepo's ToSnakeCase
+    // yields "github"/"linkedin" to match the real column names.
+    public string? Github { get; set; }
+    public string? Linkedin { get; set; }
     public string? Twitter { get; set; }
     public string? Email { get; set; }
     public string? Description { get; set; }
